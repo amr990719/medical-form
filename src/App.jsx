@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { initializeApp }                                   from 'firebase/app';
-import { getAnalytics }                                    from 'firebase/analytics';
-import { getStorage, ref, uploadBytes, getDownloadURL }   from 'firebase/storage';
-import { getFunctions }                                    from 'firebase/functions';
+import { initializeApp } from 'firebase/app';
+import { getAnalytics } from 'firebase/analytics';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getFunctions } from 'firebase/functions';
 import {
   getAuth,
   onAuthStateChanged,
@@ -10,12 +10,12 @@ import {
   createUserWithEmailAndPassword,
   signOut
 } from 'firebase/auth';
-import { getFirestore, doc, setDoc, serverTimestamp }     from 'firebase/firestore';
+import { getFirestore, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 // ─── Service & component imports added during refactoring ─────────────────────
-import { calculateTotal }  from './services/CalculationService';
-import SmartUpload         from './components/SmartUpload';
-import CheckoutPage        from './components/CheckoutPage';
+import { calculateTotal } from './services/CalculationService';
+import SmartUpload from './components/SmartUpload';
+import CheckoutPage from './components/CheckoutPage';
 
 
 // Your web app's Firebase configuration
@@ -91,15 +91,15 @@ const AuthScreen = ({ auth }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (username.trim().length < 4) {
       setError('اسم المستخدم يجب أن يكون 4 أحرف على الأقل');
       return;
     }
-    
+
     setLoading(true);
     const email = `${username.trim().toLowerCase()}@system.local`;
-    
+
     try {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
@@ -221,8 +221,8 @@ const NidInput = ({ value, onChange, size = "large" }) => {
   };
 
   const paddedValue = value.padEnd(14, ' ');
-  const boxClass = size === "large" 
-    ? "w-[24px] h-[32px] text-base" 
+  const boxClass = size === "large"
+    ? "w-[24px] h-[32px] text-base"
     : "w-[18px] h-[26px] text-sm";
 
   return (
@@ -318,11 +318,10 @@ const RadioBoxGroup = ({ label, options, name, value, onChange, labelWidth, cont
     </span>
     <div className="flex items-center justify-start gap-1">
       {options.map((opt) => (
-        <label 
-          key={opt} 
-          className={`flex items-center justify-center px-1.5 h-[26px] border-[1.5px] border-black cursor-pointer transition-colors ${
-            value === opt ? 'bg-gray-300 shadow-inner' : 'bg-white hover:bg-gray-100'
-          }`}
+        <label
+          key={opt}
+          className={`flex items-center justify-center px-1.5 h-[26px] border-[1.5px] border-black cursor-pointer transition-colors ${value === opt ? 'bg-gray-300 shadow-inner' : 'bg-white hover:bg-gray-100'
+            }`}
         >
           <span className={`text-[13px] font-bold leading-none mt-0.5 ${value === opt ? 'text-black' : 'text-gray-800'}`}>
             {opt}
@@ -346,7 +345,7 @@ const DocumentModal = ({ isOpen, onClose, beneficiary, index, onUpdateDocs, memb
   if (!isOpen || !beneficiary) return null;
 
   let requiredDocs = [];
-  
+
   if (['زوج', 'زوجة'].includes(beneficiary.kinship)) {
     requiredDocs = [
       { id: 'nationalId', label: 'بطاقة الرقم القومي' },
@@ -360,7 +359,7 @@ const DocumentModal = ({ isOpen, onClose, beneficiary, index, onUpdateDocs, memb
   } else if (['ابن (18 سنة أو أقل)', 'ابن (طالب جامعي)', 'ابن (خريج)', 'ابنة'].includes(beneficiary.kinship)) {
     // Child categories
     const isSon = beneficiary.kinship.startsWith('ابن');
-    
+
     // Add birth certificate (emphasize if the main member is female)
     if (memberGender === 'أنثى') {
       requiredDocs.push({ id: 'birthCertificate', label: 'شهادة الميلاد (إلزامي)' });
@@ -402,57 +401,57 @@ const DocumentModal = ({ isOpen, onClose, beneficiary, index, onUpdateDocs, memb
             <CloseIcon />
           </button>
         </div>
-        
+
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
           {requiredDocs.length === 0 ? (
             <p className="text-gray-500 text-center font-bold">يرجى اختيار درجة القرابة أولاً لتحديد المستندات المطلوبة.</p>
           ) : (
             requiredDocs.map(doc => {
-                // Use SmartUpload for OCR-supported documents
-                const isOcrSupported = ['nationalId', 'birthCertificate'].includes(doc.id);
-                
-                return (
-                  <div key={doc.id} className="border border-gray-200 p-4 rounded-lg bg-gray-50">
-                    <label className="block font-bold text-gray-800 mb-2">{doc.label}</label>
-                    
-                    {isOcrSupported ? (
-                      <SmartUpload
-                        label=""
-                        docType="beneficiaryDoc"
-                        currentFile={beneficiary.documents ? beneficiary.documents[doc.id] : null}
-                        onFileChange={(file) => handleFileChange(doc.id, file)}
-                        onExtracted={(fields) => {
-                          if (onUpdateData) onUpdateData(index, fields);
-                        }}
-                      />
-                    ) : (
-                      <div className="flex items-center gap-4">
-                        <input
-                          type="file"
-                          onChange={(e) => handleFileChange(doc.id, e.target.files[0])}
-                          className="block w-full text-sm text-gray-500
+              // Use SmartUpload for OCR-supported documents
+              const isOcrSupported = ['nationalId', 'birthCertificate'].includes(doc.id);
+
+              return (
+                <div key={doc.id} className="border border-gray-200 p-4 rounded-lg bg-gray-50">
+                  <label className="block font-bold text-gray-800 mb-2">{doc.label}</label>
+
+                  {isOcrSupported ? (
+                    <SmartUpload
+                      label=""
+                      docType="beneficiaryDoc"
+                      currentFile={beneficiary.documents ? beneficiary.documents[doc.id] : null}
+                      onFileChange={(file) => handleFileChange(doc.id, file)}
+                      onExtracted={(fields) => {
+                        if (onUpdateData) onUpdateData(index, fields);
+                      }}
+                    />
+                  ) : (
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="file"
+                        onChange={(e) => handleFileChange(doc.id, e.target.files[0])}
+                        className="block w-full text-sm text-gray-500
                             file:mr-4 file:py-2 file:px-4
                             file:rounded-full file:border-0
                             file:text-sm file:font-semibold
                             file:bg-blue-50 file:text-blue-700
                             hover:file:bg-blue-100 cursor-pointer"
-                        />
-                      </div>
-                    )}
-                    
-                    {beneficiary.documents && beneficiary.documents[doc.id] && !isOcrSupported && (
-                      <p className="mt-2 text-xs text-green-600 font-bold flex items-center gap-1">
-                        ✓ تم إرفاق: {beneficiary.documents[doc.id].name}
-                      </p>
-                    )}
-                  </div>
-                );
-              })
+                      />
+                    </div>
+                  )}
+
+                  {beneficiary.documents && beneficiary.documents[doc.id] && !isOcrSupported && (
+                    <p className="mt-2 text-xs text-green-600 font-bold flex items-center gap-1">
+                      ✓ تم إرفاق: {beneficiary.documents[doc.id].name}
+                    </p>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
 
         <div className="bg-gray-100 p-4 border-t flex justify-end">
-          <button 
+          <button
             onClick={onClose}
             className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors"
           >
@@ -518,7 +517,7 @@ const WaitingPage = ({ memberName, onLogout }) => {
             لقد تم حفظ المستندات والبيانات بنجاح. سيتم مراجعة طلبك من قبل إدارة المشروع.
           </p>
         </div>
-        
+
         <button
           onClick={onLogout}
           className="w-full bg-blue-600 text-white font-bold py-3 hover:bg-blue-700 transition-colors rounded shadow-md"
@@ -596,8 +595,8 @@ export default function App() {
     const result = calculateTotal(
       {
         registrationYear: formData.syndicateRegistrationYear,
-        workStatus:       formData.workStatus,
-        birthYear:        formData.birthYear,
+        workStatus: formData.workStatus,
+        birthYear: formData.birthYear,
       },
       formData.beneficiaries
     );
@@ -699,35 +698,35 @@ export default function App() {
       const ben = formData.beneficiaries[i];
       if (ben.kinship && ben.name.trim()) {
         let requiredDocsKeys = [];
-        
+
         if (['زوج', 'زوجة'].includes(ben.kinship)) {
           requiredDocsKeys = ['nationalId', 'marriageCertificate', 'insurancePrint'];
         } else if (['أم', 'أب'].includes(ben.kinship)) {
           requiredDocsKeys = ['nationalId', 'insurancePrint'];
         } else if (['ابن (18 سنة أو أقل)', 'ابن (طالب جامعي)', 'ابن (خريج)', 'ابنة'].includes(ben.kinship)) {
           const isSon = ben.kinship.startsWith('ابن');
-          
+
           if (formData.gender === 'أنثى') {
             requiredDocsKeys.push('birthCertificate');
           } else {
             requiredDocsKeys.push('birthCertificate'); // Required logic handled in modal mostly, but enforce here
           }
-          
+
           if (isSon) {
-             requiredDocsKeys.push('nationalId'); // Mandatory for 16+
+            requiredDocsKeys.push('nationalId'); // Mandatory for 16+
           }
-          
+
           if (ben.kinship === 'ابن (طالب جامعي)') {
-             requiredDocsKeys.push('universityId');
+            requiredDocsKeys.push('universityId');
           } else if (ben.kinship === 'ابن (خريج)') {
-             requiredDocsKeys.push('insurancePrint');
+            requiredDocsKeys.push('insurancePrint');
           }
         }
-        
+
         for (const reqKey of requiredDocsKeys) {
           // If birth cert or national ID isn't strictly mandatory for all cases, you can loosen this, but based on prompt "every required document"
           if (!ben.documents || !ben.documents[reqKey]) {
-            showToast(`يرجى استكمال رفع جميع المستندات المطلوبة للمستفيد: ${ben.name || `رقم ${i+1}`}`, "error");
+            showToast(`يرجى استكمال رفع جميع المستندات المطلوبة للمستفيد: ${ben.name || `رقم ${i + 1}`}`, "error");
             return;
           }
         }
@@ -778,13 +777,13 @@ export default function App() {
                 }
               }
             }
-            return { ...ben, documents: uploadedDocsUrls }; 
+            return { ...ben, documents: uploadedDocsUrls };
           })
       );
 
       // 4. Save to Firestore using setDoc with the exact same Custom ID
       const memberDocRef = doc(db, 'members', customDocumentId);
-      
+
       const payload = {
         ...formData,
         memberPhotoUrl: photoUrl,
@@ -795,14 +794,14 @@ export default function App() {
       };
 
       await setDoc(memberDocRef, payload);
-      
+
       showToast("تم تأكيد الدفع وحفظ الاستمارة والمستندات بنجاح!", "success");
-      
+
       // Redirect to the Waiting Page
       setTimeout(() => {
         setCurrentView('waiting');
       }, 1500);
-      
+
     } catch (error) {
       console.error("Error saving document: ", error);
       showToast("حدث خطأ أثناء حفظ البيانات. حاول مرة أخرى.", "error");
@@ -827,10 +826,10 @@ export default function App() {
       <CheckoutPage
         amountCents={(feeResult?.total || 0) * 100}   // Convert EGP → piastres
         billingData={{
-          first_name:   nameParts[0]            || 'عضو',
-          last_name:    nameParts.slice(1).join(' ') || 'النقابة',
-          email:        formData.email          || 'n/a@n/a.com',
-          phone_number: formData.mobile         || '+20000000000',
+          first_name: nameParts[0] || 'عضو',
+          last_name: nameParts.slice(1).join(' ') || 'النقابة',
+          email: formData.email || 'n/a@n/a.com',
+          phone_number: formData.mobile || '+20000000000',
         }}
         memberName={formData.memberName}
         onPaymentSuccess={handleFinalSubmit}   // Upload data after confirmed payment
@@ -842,7 +841,7 @@ export default function App() {
   // If the state is set to 'waiting', show the waiting page and STOP.
   if (currentView === 'waiting') {
     return (
-      <WaitingPage 
+      <WaitingPage
         memberName={formData.memberName}
         onLogout={handleLogout}
       />
@@ -852,7 +851,7 @@ export default function App() {
   // If the state is 'form', it skips the block above and renders this:
   return (
     <div dir="rtl" className="min-h-screen bg-gray-200 py-8 px-4 font-sans text-gray-900 selection:bg-blue-200 overflow-x-auto relative">
-      
+
       {/* ------------------------------------------------------------------ */}
       {/* NEW: Hidden CSS to force the printer into A4 Mode with no margins */}
       <style>{`
@@ -868,8 +867,8 @@ export default function App() {
       `}</style>
       {/* ------------------------------------------------------------------ */}
 
-      <DocumentModal 
-        isOpen={activeModalIndex !== null} 
+      <DocumentModal
+        isOpen={activeModalIndex !== null}
         onClose={() => setActiveModalIndex(null)}
         beneficiary={activeModalIndex !== null ? formData.beneficiaries[activeModalIndex] : null}
         index={activeModalIndex}
@@ -886,7 +885,7 @@ export default function App() {
 
       {/* Floating Action Buttons - Hidden on Print */}
       <div className="print:hidden fixed bottom-8 left-8 flex flex-col gap-4 z-50">
-        <button 
+        <button
           onClick={handleLogout}
           className="bg-gray-800 text-white p-4 rounded-full shadow-xl hover:bg-gray-900 hover:scale-105 transition-all flex items-center justify-center gap-2"
           title="تسجيل الخروج"
@@ -895,7 +894,7 @@ export default function App() {
           <span className="font-bold hidden md:inline">تسجيل الخروج</span>
         </button>
 
-        <button 
+        <button
           onClick={handleProceedToPayment}
           className={`text-white p-4 rounded-full shadow-xl transition-all flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 hover:scale-105`}
         >
@@ -903,7 +902,7 @@ export default function App() {
           <span className="font-bold hidden md:inline">متابعة للدفع</span>
         </button>
 
-        <button 
+        <button
           onClick={handlePrint}
           className="bg-blue-600 text-white p-4 rounded-full shadow-xl hover:bg-blue-700 hover:scale-105 transition-all flex items-center justify-center gap-2"
         >
@@ -915,8 +914,8 @@ export default function App() {
       {/* ------------------------------------------------------------------ */}
       {/* FIXED: Scaled exactly for A4 perfectly vertically by adjusting padding and scale */}
       <div className="w-[794px] min-h-[1123px] mx-auto bg-white p-8 shadow-2xl print:w-[210mm] print:h-[297mm] print:shadow-none print:p-6 print:m-0 print:overflow-hidden print:box-border flex flex-col justify-between">
-      {/* ------------------------------------------------------------------ */}
-        
+        {/* ------------------------------------------------------------------ */}
+
         {/* Header Section */}
         <header className="flex justify-between items-start mb-10 h-32">
           {/* Right Logo approximation */}
@@ -934,12 +933,12 @@ export default function App() {
 
           {/* Left Photo Box */}
           <label className="w-28 h-36 border-[1.5px] border-black flex items-center justify-center bg-white shrink-0 mt-2 ml-4 cursor-pointer relative overflow-hidden group">
-            <input 
-              type="file" 
-              accept="image/*" 
-              className="hidden" 
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
               onChange={(e) => {
-                 if (e.target.files && e.target.files[0]) {
+                if (e.target.files && e.target.files[0]) {
                   const file = e.target.files[0];
                   setMemberPhotoFile(file); // Saves the physical file to state
                   const reader = new FileReader();
@@ -952,7 +951,7 @@ export default function App() {
               <img src={memberPhoto} alt="صورة العضو" className="w-full h-full object-cover" />
             ) : (
               <div className="text-center text-gray-400 text-sm font-bold leading-tight group-hover:text-blue-600 transition-colors">
-                صورة<br/>العضو<br/>الأصلي
+                صورة<br />العضو<br />الأصلي
               </div>
             )}
           </label>
@@ -1001,10 +1000,10 @@ export default function App() {
               onExtracted={(fields) => {
                 // Map OcrService keys → formData keys
                 handleOcrResult({
-                  registrationNumber:        fields.registrationNumber,
-                  subSyndicate:              fields.subSyndicate,
+                  registrationNumber: fields.registrationNumber,
+                  subSyndicate: fields.subSyndicate,
                   syndicateRegistrationYear: fields.syndicateRegistrationYear,
-                  syndicateType:             fields.syndicateType,
+                  syndicateType: fields.syndicateType,
                 });
               }}
             />
@@ -1015,14 +1014,14 @@ export default function App() {
         {/* Section 1: Original Member Data */}
         <section className="mb-10 mt-6">
           <div className="grid grid-cols-12 gap-y-7 gap-x-4 text-[15px]">
-            
+
             {/* Row 1 */}
-            <RadioBoxGroup 
-              label="الـنـقـــابـــة :" 
+            <RadioBoxGroup
+              label="الـنـقـــابـــة :"
               name="syndicateType"
-              options={['بشري', 'صيدلي', 'أسنان', 'بيطري']} 
-              value={formData.syndicateType} 
-              onChange={(v) => updateField('syndicateType', v)} 
+              options={['بشري', 'صيدلي', 'أسنان', 'بيطري']}
+              value={formData.syndicateType}
+              onChange={(v) => updateField('syndicateType', v)}
               labelWidth={labelRight}
               containerClass="col-span-6"
             />
@@ -1032,24 +1031,24 @@ export default function App() {
             {/* Row 2 */}
             <DashedField label="رقم بطاقة العلاج :" value={formData.treatmentCardNumber} onChange={(v) => updateField('treatmentCardNumber', v)} labelWidth={labelRight} containerClass="col-span-5" />
             <DashedField label="سنة قيد النقابة :" value={formData.syndicateRegistrationYear} onChange={(v) => updateField('syndicateRegistrationYear', v)} labelWidth={labelMid} containerClass="col-span-3" />
-            <RadioBoxGroup 
-              label="حـالـــة العـمـيـل :" 
+            <RadioBoxGroup
+              label="حـالـــة العـمـيـل :"
               name="workStatus"
-              options={['يعمل', 'معاش', 'متوفى']} 
-              value={formData.workStatus} 
-              onChange={(v) => updateField('workStatus', v)} 
+              options={['يعمل', 'معاش', 'متوفى']}
+              value={formData.workStatus}
+              onChange={(v) => updateField('workStatus', v)}
               labelWidth={labelLeft}
               containerClass="col-span-4"
             />
 
             {/* Row 3 */}
             <DashedField label="أســــم العـضــــو :" value={formData.memberName} onChange={(v) => updateField('memberName', v)} labelWidth={labelRight} containerClass="col-span-8 pr-1" />
-            <RadioBoxGroup 
-              label="الـــديـــانــــة :" 
+            <RadioBoxGroup
+              label="الـــديـــانــــة :"
               name="religion"
-              options={['مسلم', 'مسيحي']} 
-              value={formData.religion} 
-              onChange={(v) => updateField('religion', v)} 
+              options={['مسلم', 'مسيحي']}
+              value={formData.religion}
+              onChange={(v) => updateField('religion', v)}
               labelWidth={labelLeft}
               containerClass="col-span-4 pl-1"
             />
@@ -1059,12 +1058,12 @@ export default function App() {
               <span className={`whitespace-nowrap font-bold text-gray-900 inline-block shrink-0 ${labelRight}`}>الرقـم القـومــي :</span>
               <NidInput value={formData.nationalId} onChange={(v) => updateField('nationalId', v)} />
             </div>
-            <RadioBoxGroup 
-              label="الـــنـــــوع :" 
+            <RadioBoxGroup
+              label="الـــنـــــوع :"
               name="gender"
-              options={['ذكر', 'أنثى']} 
-              value={formData.gender} 
-              onChange={(v) => updateField('gender', v)} 
+              options={['ذكر', 'أنثى']}
+              value={formData.gender}
+              onChange={(v) => updateField('gender', v)}
               labelWidth={labelLeft}
               containerClass="col-span-4"
             />
@@ -1108,13 +1107,13 @@ export default function App() {
             <tbody>
               {formData.beneficiaries.map((ben, i) => {
                 const hasDocs = ben.documents && Object.keys(ben.documents).some(k => ben.documents[k] !== null);
-                
+
                 return (
                   <tr key={i} className="h-9 group relative">
                     <td className="border border-black p-0 font-bold text-gray-800 bg-white relative">
                       {i + 1}
                       {ben.kinship && (
-                        <button 
+                        <button
                           onClick={() => setActiveModalIndex(i)}
                           className={`print:hidden absolute -right-7 top-1.5 p-1 rounded-full bg-white shadow-sm border ${hasDocs ? 'text-green-600 border-green-200 hover:bg-green-50' : 'text-gray-400 border-gray-200 hover:bg-gray-50 hover:text-blue-600'} transition-all`}
                           title="إرفاق مستندات"
@@ -1124,10 +1123,10 @@ export default function App() {
                       )}
                     </td>
                     <td className="border border-black p-0 relative">
-                      <select 
+                      <select
                         className="w-full h-full text-center outline-none bg-transparent text-blue-700 font-bold focus:bg-blue-50 cursor-pointer"
-                        value={ben.kinship} 
-                        onChange={(e) => updateBeneficiary(i, 'kinship', e.target.value)} 
+                        value={ben.kinship}
+                        onChange={(e) => updateBeneficiary(i, 'kinship', e.target.value)}
                       >
                         <option value=""></option>
                         <option value="أم">أم</option>
@@ -1141,25 +1140,25 @@ export default function App() {
                       </select>
                     </td>
                     <td className="border border-black p-0">
-                      <input 
-                        className="w-full h-full px-2 outline-none bg-transparent text-blue-700 font-bold focus:bg-blue-50 text-right" 
-                        value={ben.name} 
-                        onChange={(e) => updateBeneficiary(i, 'name', e.target.value)} 
+                      <input
+                        className="w-full h-full px-2 outline-none bg-transparent text-blue-700 font-bold focus:bg-blue-50 text-right"
+                        value={ben.name}
+                        onChange={(e) => updateBeneficiary(i, 'name', e.target.value)}
                       />
                     </td>
                     <td className="border border-black p-0">
-                      <input 
-                        className="w-full h-full text-center outline-none bg-transparent text-blue-700 font-bold focus:bg-blue-50" 
-                        value={ben.birthYear} 
-                        onChange={(e) => updateBeneficiary(i, 'birthYear', e.target.value)} 
+                      <input
+                        className="w-full h-full text-center outline-none bg-transparent text-blue-700 font-bold focus:bg-blue-50"
+                        value={ben.birthYear}
+                        onChange={(e) => updateBeneficiary(i, 'birthYear', e.target.value)}
                         maxLength={4}
                       />
                     </td>
                     <td className="border border-black p-1 bg-white flex justify-center h-[37px] items-center">
-                      <NidInput 
-                        value={ben.nationalId} 
-                        onChange={(v) => updateBeneficiary(i, 'nationalId', v)} 
-                        size="small" 
+                      <NidInput
+                        value={ben.nationalId}
+                        onChange={(v) => updateBeneficiary(i, 'nationalId', v)}
+                        size="small"
                       />
                     </td>
                   </tr>
@@ -1174,16 +1173,16 @@ export default function App() {
           <div className="text-center mb-5">
             <h2 className="text-[20px] font-extrabold inline-block">إقــــــــرار</h2>
           </div>
-          
+
           <div className="text-justify font-medium text-gray-900 leading-[2.5] text-[16px]">
-              <span className="font-bold ml-2">أقر أنا /</span>
-              <input 
-                type="text" 
-                value={formData.declarationName}
-                onChange={(e) => updateField('declarationName', e.target.value)}
-                className="inline-block min-w-[300px] border-b-[2px] border-dashed border-gray-600 outline-none bg-transparent px-2 text-center text-blue-700 font-bold focus:border-blue-500 -translate-y-[2px]" 
-              />
-              <span className="font-bold mr-2">أن جميع البيانات بعاليه صحيحة وكذلك صور المستفيدين وأن الأولاد في الدراسة ولم يتخرجوا وأن بناتي المدونة أسماءهم لم يتزوجوا بعد واتعهد باخطار المشروع فور زواجهم <span className="font-bold underline decoration-red-400 underline-offset-4">مع العلم انه لا يجوز استفادة الابن بعد التخرج أو الابنة بعد الزواج واذا ثبت عكس ذلك أتحمل المسئولية المالية والقانونية فورا مع عدم رد قيمة الاشتراك وتحمل كافة التكاليف وللمشروع الحق في اتخاذ اي اجراء مناسب لذلك .</span> وأقر بالموافقة علي النظام العلاجي الذي يسير عليه المشروع وأي تعديلات تتم اثناء العام الصادرة من لجنة العلاج العليا للمشروع وأتبرع تكافلا بمبلغ اشتراكي لعلاج زملائى المشتركين وأتعاون معهم في سداد قيمة العلاج.</span>
+            <span className="font-bold ml-2">أقر أنا /</span>
+            <input
+              type="text"
+              value={formData.declarationName}
+              onChange={(e) => updateField('declarationName', e.target.value)}
+              className="inline-block min-w-[300px] border-b-[2px] border-dashed border-gray-600 outline-none bg-transparent px-2 text-center text-blue-700 font-bold focus:border-blue-500 -translate-y-[2px]"
+            />
+            <span className="font-bold mr-2">أن جميع البيانات بعاليه صحيحة وكذلك صور المستفيدين وأن الأولاد في الدراسة ولم يتخرجوا وأن بناتي المدونة أسماءهم لم يتزوجوا بعد واتعهد باخطار المشروع فور زواجهم <span className="font-bold underline decoration-red-400 underline-offset-4">مع العلم انه لا يجوز استفادة الابن بعد التخرج أو الابنة بعد الزواج واذا ثبت عكس ذلك أتحمل المسئولية المالية والقانونية فورا مع عدم رد قيمة الاشتراك وتحمل كافة التكاليف وللمشروع الحق في اتخاذ اي اجراء مناسب لذلك .</span> وأقر بالموافقة علي النظام العلاجي الذي يسير عليه المشروع وأي تعديلات تتم اثناء العام الصادرة من لجنة العلاج العليا للمشروع وأتبرع تكافلا بمبلغ اشتراكي لعلاج زملائى المشتركين وأتعاون معهم في سداد قيمة العلاج.</span>
           </div>
 
           <div className="mt-8 flex justify-end">

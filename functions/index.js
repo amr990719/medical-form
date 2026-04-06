@@ -22,9 +22,9 @@
  *                         handshake and returns { payment_key, iframe_id }
  */
 
-const functions   = require('firebase-functions');
-const admin       = require('firebase-admin');
-const axios       = require('axios');
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+const axios = require('axios');
 
 admin.initializeApp();
 
@@ -64,9 +64,9 @@ exports.createPaymobPayment = functions.https.onCall(async (data, context) => {
 
   // ── Read Paymob config from Firebase environment ──────────────────────────
   const config = functions.config();
-  const PAYMOB_API_KEY      = config.paymob?.api_key;
-  const PAYMOB_INTEGRATION  = config.paymob?.integration_id;
-  const PAYMOB_IFRAME_ID    = config.paymob?.iframe_id;
+  const PAYMOB_API_KEY = config.paymob?.api_key;
+  const PAYMOB_INTEGRATION = config.paymob?.integration_id;
+  const PAYMOB_IFRAME_ID = config.paymob?.iframe_id;
 
   if (!PAYMOB_API_KEY || !PAYMOB_INTEGRATION || !PAYMOB_IFRAME_ID) {
     functions.logger.error('Paymob config not set. Run firebase functions:config:set paymob.*');
@@ -106,13 +106,13 @@ exports.createPaymobPayment = functions.https.onCall(async (data, context) => {
     functions.logger.info('[Paymob] Step 2: Registering order…');
 
     const orderResponse = await axios.post(`${PAYMOB_BASE}/ecommerce/orders`, {
-      auth_token:         authToken,
-      delivery_needed:    false,
-      amount_cents:       amount_cents,
-      currency:           'EGP',
+      auth_token: authToken,
+      delivery_needed: false,
+      amount_cents: amount_cents,
+      currency: 'EGP',
       // Use the Firebase user UID as a merchant order reference for traceability
-      merchant_order_id:  context.auth.uid,
-      items:              [],  // No physical items for a subscription payment
+      merchant_order_id: context.auth.uid,
+      items: [],  // No physical items for a subscription payment
     });
 
     const orderId = orderResponse.data?.id;
@@ -128,27 +128,27 @@ exports.createPaymobPayment = functions.https.onCall(async (data, context) => {
     functions.logger.info('[Paymob] Step 3: Generating payment key…');
 
     const paymentKeyResponse = await axios.post(`${PAYMOB_BASE}/acceptance/payment_keys`, {
-      auth_token:      authToken,
-      amount_cents:    amount_cents,
-      expiration:      3600,          // Key valid for 1 hour
-      order_id:        orderId,
-      currency:        'EGP',
-      integration_id:  parseInt(PAYMOB_INTEGRATION, 10),
-      billing_data:    {
+      auth_token: authToken,
+      amount_cents: amount_cents,
+      expiration: 3600,          // Key valid for 1 hour
+      order_id: orderId,
+      currency: 'EGP',
+      integration_id: parseInt(PAYMOB_INTEGRATION, 10),
+      billing_data: {
         // Paymob requires these billing fields even for digital payments
-        first_name:    billing_data?.first_name    || 'عضو',
-        last_name:     billing_data?.last_name     || 'النقابة',
-        email:         billing_data?.email         || 'n/a@n/a.com',
-        phone_number:  billing_data?.phone_number  || '+20000000000',
-        apartment:     'NA',
-        floor:         'NA',
-        street:        'NA',
-        building:      'NA',
+        first_name: billing_data?.first_name || 'عضو',
+        last_name: billing_data?.last_name || 'النقابة',
+        email: billing_data?.email || 'n/a@n/a.com',
+        phone_number: billing_data?.phone_number || '+20000000000',
+        apartment: 'NA',
+        floor: 'NA',
+        street: 'NA',
+        building: 'NA',
         shipping_method: 'NA',
-        postal_code:   'NA',
-        city:          'Cairo',
-        country:       'EG',
-        state:         'NA',
+        postal_code: 'NA',
+        city: 'Cairo',
+        country: 'EG',
+        state: 'NA',
       },
     });
 
@@ -162,7 +162,7 @@ exports.createPaymobPayment = functions.https.onCall(async (data, context) => {
     // ── Return the key and iframe ID to the frontend ──────────────────────
     return {
       payment_key: paymentKey,
-      iframe_id:   PAYMOB_IFRAME_ID,
+      iframe_id: PAYMOB_IFRAME_ID,
     };
 
   } catch (error) {
