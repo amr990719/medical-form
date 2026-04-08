@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper: check if requester is an admin ────────────────────────────
+    function isAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // ─── /members/{docId} ─────────────────────────────────────────────────
+    match /members/{docId} {
+
+      // CREATE: authenticated, userId matches caller, required fields present, nationalId is 14 digits
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.keys().hasAll(['userId', 'memberName', 'nationalId', 'submittedAt'])
+        && request.resource.data.nationalId.size() == 14;
+
+      // READ: owner or admin
+      allow read: if request.auth != null
+        && (request.auth.uid == resource.data.userId || isAdmin());
+
+      // UPDATE: owner may only touch payment/receipt fields; admin may update any field
+      allow update: if request.auth != null && (
+        // Admin can update anything
+        isAdmin()
+        ||
+        // Owner can only update these three fields — all other fields must stay unchanged
+        (
+          request.auth.uid == resource.data.userId
+          && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['paymentReceiptUrl', 'paymentStatus', 'receiptUploadedAt',
+                        'receiptImageUrl', 'lastUpdatedAt', 'applicationStatus'])
+        )
+      );
+
+      // DELETE: denied for everyone
+      allow delete: if false;
+    }
+
+    // ─── /admins/{uid} ────────────────────────────────────────────────────
+    match /admins/{uid} {
+      // Only the admin themselves can read their own record (for self-check)
+      allow read: if request.auth != null && request.auth.uid == uid;
+      // No client-side writes — managed exclusively via Firebase Admin SDK
+      allow write: if false;
+    }
+
+    // ─── /appMetadata/{docId} ─────────────────────────────────────────────
+    // Fee tables, announcements, config — readable by any authenticated user
+    match /appMetadata/{docId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // ─── /metadata/{docId} ────────────────────────────────────────────────
+    // Internal counters (submissionCounter) — managed only by Cloud Functions
+    match /metadata/{docId} {
+      allow read, write: if false;
+    }
+
+    // ─── Deny everything else ─────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

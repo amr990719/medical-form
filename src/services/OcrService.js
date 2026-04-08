@@ -14,7 +14,7 @@
  *     → { registrationNumber, subSyndicate, syndicateRegistrationYear, syndicateType }
  */
 
-import { getApps }                                    from 'firebase/app';
+import { getApps } from 'firebase/app';
 import { getAI, GoogleAIBackend, getGenerativeModel } from 'firebase/ai';
 
 // ─── Firebase / Gemini setup ──────────────────────────────────────────────────
@@ -28,9 +28,16 @@ function getFirebaseApp() {
 let _model = null;
 function getModel() {
   if (_model) return _model;
-  const ai = getAI(getFirebaseApp(), { backend: new GoogleAIBackend() });
-  _model = getGenerativeModel(ai, { model: 'gemini-3-flash-preview' });
-  return _model;
+  try {
+    const ai = getAI(getFirebaseApp(), { backend: new GoogleAIBackend() });
+    _model = getGenerativeModel(ai, { model: 'gemini-2.5-flash-lite' });
+    return _model;
+  } catch (err) {
+    throw new Error(
+      'Firebase AI Logic غير مفعّل. فعّله من Firebase Console → Build → AI Logic ثم أعد المحاولة.\n' +
+      'التفاصيل: ' + err.message
+    );
+  }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -39,7 +46,7 @@ function getModel() {
 async function fileToInlinePart(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload  = () => resolve({
+    reader.onload = () => resolve({
       inlineData: { data: reader.result.split(',')[1], mimeType: file.type || 'image/jpeg' }
     });
     reader.onerror = reject;
@@ -130,17 +137,17 @@ export async function extractNationalIdFront(imageFile, onProgress) {
   const data = await askGemini(imageFile, prompt, onProgress);
   onProgress?.(100);
 
-  const nationalId  = cleanIdNumber(data.nationalID);
-  const birthYear   = birthYearFromId(nationalId);
+  const nationalId = cleanIdNumber(data.nationalID);
+  const birthYear = birthYearFromId(nationalId);
 
   return {
-    memberName:           String(data.memberName           || '').trim(),
+    memberName: String(data.memberName || '').trim(),
     nationalId,
     birthYear,
-    governorate:          String(data.governorate          || '').trim(),
-    neighborhood:         String(data.neighborhood         || '').trim(),
+    governorate: String(data.governorate || '').trim(),
+    neighborhood: String(data.neighborhood || '').trim(),
     residenceGovernorate: String(data.residenceGovernorate || '').trim(),
-    address:              String(data.address              || '').trim(),
+    address: String(data.address || '').trim(),
   };
 }
 
@@ -165,8 +172,8 @@ export async function extractNationalIdBack(imageFile, onProgress) {
   onProgress?.(100);
 
   return {
-    gender:        String(data.gender        || '').trim(),
-    religion:      String(data.religion      || '').trim(),
+    gender: String(data.gender || '').trim(),
+    religion: String(data.religion || '').trim(),
     maritalStatus: String(data.maritalStatus || '').trim(),
   };
 }
@@ -210,10 +217,10 @@ export async function extractSyndicateId(imageFile, onProgress) {
   console.log('[OcrService] Syndicate Gemini response:', data);
 
   return {
-    registrationNumber:        String(data.registrationNumber || '').trim(),
-    subSyndicate:              String(data.subSyndicate        || '').trim(),
+    registrationNumber: String(data.registrationNumber || '').trim(),
+    subSyndicate: String(data.subSyndicate || '').trim(),
     syndicateRegistrationYear: extractYear(data.registrationDate),
-    syndicateType:             String(data.syndicateType       || '').trim(),
+    syndicateType: String(data.syndicateType || '').trim(),
   };
 }
 
@@ -244,7 +251,7 @@ export async function extractBeneficiaryDocument(imageFile, onProgress) {
   const full = String(data.fullName || '').trim();
   const rawParts = full.split(/\s+/).filter(Boolean);
   const nameParts = [];
-  
+
   for (let i = 0; i < rawParts.length; i++) {
     // Combine "عبد" or "أبو/ابو" with the next word so they count as a single name
     if ((rawParts[i] === 'عبد' || rawParts[i] === 'أبو' || rawParts[i] === 'ابو') && i + 1 < rawParts.length) {
@@ -254,7 +261,7 @@ export async function extractBeneficiaryDocument(imageFile, onProgress) {
       nameParts.push(rawParts[i]);
     }
   }
-  
+
   const tripleName = nameParts.slice(0, 3).join(' ');
 
   // 2. Process National ID

@@ -1,6 +1,6 @@
 {
   "name": "medical-form-functions",
-  "description": "Firebase Cloud Functions for secure Paymob payment gateway",
+  "description": "Firebase Cloud Functions for medical insurance subscription service",
   "scripts": {
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
@@ -13,7 +13,6 @@
   },
   "main": "index.js",
   "dependencies": {
-    "axios": "^1.6.0",
     "firebase-admin": "^12.0.0",
     "firebase-functions": "^5.0.0"
   },

@@ -1,1 +1,301 @@
 @import "tailwindcss";
+
+/* ─── Nano Banana Design System ─────────────────────────────────────────── */
+:root {
+  --nb-banana:        #F5E642;
+  --nb-banana-deep:   #C4B800;
+  --nb-banana-light:  #FDFBE8;
+  --nb-teal:          #0FA571;
+  --nb-teal-deep:     #0A7A55;
+  --nb-teal-light:    #E3F8F0;
+  --nb-charcoal:      #1A1A2E;
+  --nb-slate:         #4A5568;
+  --nb-muted:         #718096;
+  --nb-smoke:         #F7F8FA;
+  --nb-white:         #FFFFFF;
+  --nb-border:        #E8EAED;
+  --nb-border-hover:  #CBD5E0;
+  --nb-danger:        #E53E3E;
+  --nb-danger-light:  #FFF5F5;
+  --nb-success:       #38A169;
+  --nb-warning:       #D69E2E;
+}
+
+/* ─── Global ────────────────────────────────────────────────────────────── */
+html {
+  direction: rtl;
+  font-family: 'Cairo', sans-serif;
+  background: var(--nb-smoke);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: var(--nb-banana);
+  color: var(--nb-charcoal);
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--nb-border); }
+::-webkit-scrollbar-thumb { background: var(--nb-teal); border-radius: 4px; }
+
+/* ─── Print utilities ───────────────────────────────────────────────────── */
+.no-print {}
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  @page { size: A4; margin: 0; }
+  body { background: white !important; }
+}
+
+/* ─── Keyframe animations ───────────────────────────────────────────────── */
+@keyframes ecgDraw {
+  0%   { stroke-dashoffset: 350; }
+  70%  { stroke-dashoffset: 0; }
+  85%  { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 350; }
+}
+
+@keyframes stepPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(245,230,66,0.5); }
+  70%  { box-shadow: 0 0 0 8px rgba(245,230,66,0); }
+  100% { box-shadow: 0 0 0 0 rgba(245,230,66,0); }
+}
+
+@keyframes checkDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes pulsonce {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.08); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ─── Nano Banana component utilities ──────────────────────────────────── */
+
+/* Auth card method buttons */
+[data-auth-method] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: var(--nb-white);
+  border: 1.5px solid var(--nb-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--nb-charcoal);
+  transition: all 0.2s ease-out;
+  text-align: right;
+}
+[data-auth-method]:hover {
+  border-color: var(--nb-banana);
+  background: var(--nb-banana-light);
+  transform: translateY(-1px);
+}
+
+/* Auth primary / ghost buttons */
+[data-auth-btn="primary"] {
+  width: 100%;
+  height: 50px;
+  background: var(--nb-banana);
+  color: var(--nb-charcoal);
+  border: none;
+  border-radius: 10px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  margin-top: 8px;
+}
+[data-auth-btn="primary"]:hover  { background: var(--nb-banana-deep); }
+[data-auth-btn="primary"]:active { transform: scale(0.98); }
+[data-auth-btn="primary"]:disabled { background: var(--nb-border); color: var(--nb-muted); cursor: not-allowed; }
+
+[data-auth-btn="ghost"] {
+  width: 100%;
+  height: 50px;
+  background: transparent;
+  color: var(--nb-teal);
+  border: 1.5px solid var(--nb-teal);
+  border-radius: 10px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  margin-top: 6px;
+}
+[data-auth-btn="ghost"]:hover { background: var(--nb-teal-light); }
+
+/* Auth error / info boxes */
+[data-auth-error] {
+  background: var(--nb-danger-light);
+  border-right: 3px solid var(--nb-danger);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #742A2A;
+  margin-bottom: 12px;
+}
+
+[data-auth-info] {
+  background: var(--nb-teal-light);
+  border-right: 3px solid var(--nb-teal);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--nb-teal-deep);
+  margin-bottom: 12px;
+}
+
+/* Auth field labels */
+[data-auth-screen] [data-field] label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--nb-slate);
+  margin-bottom: 6px;
+}
+
+/* Auth inputs */
+[data-auth-screen] [data-field] input {
+  width: 100%;
+  height: 48px;
+  border-radius: 10px;
+  border: 1.5px solid var(--nb-border);
+  padding: 0 14px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  color: var(--nb-charcoal);
+  background: white;
+  outline: none;
+  transition: all 0.2s ease-out;
+  margin-bottom: 12px;
+}
+[data-auth-screen] [data-field] input:focus {
+  border-color: var(--nb-teal);
+  box-shadow: 0 0 0 3px rgba(15,165,113,0.12);
+}
+
+/* Auth headings */
+[data-auth-screen] h1,
+[data-auth-screen] h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--nb-charcoal);
+  margin-bottom: 6px;
+}
+[data-auth-screen] > p {
+  font-size: 14px;
+  color: var(--nb-muted);
+  margin-bottom: 20px;
+}
+
+/* Auth methods container */
+[data-auth-methods] {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Forgot password link */
+[data-forgot-link] {
+  background: none;
+  border: none;
+  color: var(--nb-teal);
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  display: block;
+  text-align: right;
+  margin-bottom: 8px;
+}
+
+/* OTP boxes */
+[data-otp-boxes] {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+  margin: 20px 0;
+}
+[data-otp-box] {
+  width: 48px;
+  height: 56px;
+  border-radius: 10px;
+  border: 1.5px solid var(--nb-border);
+  background: white;
+}
+
+/* Resend row */
+[data-resend-row] {
+  text-align: center;
+  margin: 12px 0;
+}
+[data-resend-countdown] {
+  font-size: 12px;
+  color: var(--nb-muted);
+}
+[data-resend-btn] {
+  background: none;
+  border: none;
+  color: var(--nb-teal);
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Verify hints */
+[data-verify-hint], [data-verify-polling] {
+  font-size: 13px;
+  color: var(--nb-slate);
+  text-align: center;
+  margin: 8px 0;
+}
+
+/* Spinner */
+[data-spinner] {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top-color: var(--nb-teal);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Shimmer placeholder */
+.shimmer {
+  width: 140px;
+  height: 24px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #e8eaed 25%, #f7f8fa 50%, #e8eaed 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s infinite linear;
+  display: inline-block;
+}
