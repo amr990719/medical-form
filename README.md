@@ -1,16 +1,107 @@
-# React + Vite
+# Medical Union Subscription Form
+### اتحاد نقابات المهن الطبية — مشروع علاج الأعضاء وأسرهم
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React web application for managing medical union subscription forms for Egyptian medical syndicates. Members fill out a subscription form, upload a payment receipt, and track their application status through a dashboard.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- **Authentication** — Google OAuth and email/password sign-in with Firebase Auth
+- **Smart OCR** — Automatic data extraction from Egyptian National ID cards (front & back) and Syndicate ID cards using Gemini 2.5 Flash Lite via Firebase AI Logic
+- **Subscription Form** — Multi-section A4-printable form covering member details, beneficiaries, and declaration
+- **Fee Calculator** — Real-time fee summary based on member data
+- **Receipt Upload** — Camera or file upload for payment receipt with AI-assisted validation
+- **Application Tracking** — Waiting page and dashboard for monitoring submission status
+- **Fully RTL** — Arabic-first UI with Cairo font
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, Vite 7, Tailwind CSS 4 |
+| Routing | React Router v7 |
+| Backend / Auth | Firebase 12 (Auth, Firestore, Storage) |
+| AI / OCR | Firebase AI Logic — Gemini 2.5 Flash Lite |
+| OCR fallback | Tesseract.js 7 |
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## App Flow
+
+```
+/ (Landing + Auth)
+    └── /form        — Subscription form (protected)
+    └── /receipt     — Payment receipt upload (protected)
+    └── /waiting     — Processing status (protected)
+    └── /dashboard   — Submission dashboard (protected)
+```
+
+Unauthenticated users are redirected to `/` from any protected route.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- A Firebase project with **Authentication**, **Firestore**, **Storage**, and **AI Logic** enabled
+
+### Setup
+
+1. Clone the repo and install dependencies:
+
+```bash
+npm install
+```
+
+2. Create a `.env` file in the project root with your Firebase config:
+
+```env
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+```
+
+3. In the Firebase Console, enable **AI Logic** under Build → AI Logic to activate Gemini-powered OCR.
+
+4. Start the development server:
+
+```bash
+npm run dev
+```
+
+### Available Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start local dev server with HMR |
+| `npm run build` | Production build |
+| `npm run preview` | Preview the production build |
+| `npm run lint` | Run ESLint |
+
+## Project Structure
+
+```
+src/
+├── auth/               # Auth page (Google + email sign-in)
+├── components/
+│   ├── form/           # MemberSection, BeneficiaryTable, DeclarationSection, FeeSummaryPanel
+│   └── shared/         # Reusable inputs, modals, progress stepper
+├── context/            # AuthContext, FormContext
+├── hooks/              # useSubmissionStatus
+├── pages/              # LandingPage, FormPage, ReceiptPage, WaitingPage, DashboardPage
+├── services/           # OcrService (Gemini), CalculationService
+└── utils/              # validateForm, validateReceiptImage
+```
+
+## OCR Document Support
+
+The `OcrService` extracts structured data from three document types:
+
+| Document | Extracted Fields |
+|---|---|
+| National ID — Front | Name, National ID number, birth year, governorate, address |
+| National ID — Back | Gender, religion, marital status |
+| Syndicate ID | Registration number, sub-syndicate, registration year, syndicate type |
+| Beneficiary document | Name (first 3 words), National ID, birth year |
