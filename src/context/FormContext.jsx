@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { calculateTotal } from '../services/CalculationService';
+import { useAuth } from './AuthContext';
 
 const FormContext = createContext();
 
@@ -22,7 +23,7 @@ export const INITIAL_FORM_DATA = {
   address: '',
   mobile: '',
   email: '',
-  beneficiaries: Array(10).fill({ kinship: '', name: '', birthYear: '', nationalId: '', documents: {} }),
+  beneficiaries: Array.from({ length: 10 }, () => ({ kinship: '', name: '', birthYear: '', nationalId: '', documents: {} })),
   declarationName: ''
 };
 
@@ -119,7 +120,12 @@ export const FormProvider = ({ children }) => {
   };
 
   const resetForm = () => {
-    setFormData(INITIAL_FORM_DATA);
+    setFormData({
+      ...INITIAL_FORM_DATA,
+      beneficiaries: Array.from({ length: 10 }, () => ({
+        kinship: '', name: '', birthYear: '', nationalId: '', documents: {}
+      })),
+    });
     setMainMemberDocs(INITIAL_MAIN_DOCS);
     setMemberPhoto(null);
     setMemberPhotoFile(null);
@@ -148,6 +154,13 @@ export const FormProvider = ({ children }) => {
     handleOcrResult,
     resetForm
   };
+
+  // Register resetForm with AuthContext so logout() can clear form state.
+  const { registerResetForm } = useAuth();
+  useEffect(() => {
+    registerResetForm(resetForm);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <FormContext.Provider value={value}>

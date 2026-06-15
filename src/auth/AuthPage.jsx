@@ -199,14 +199,15 @@ export default function AuthPage({ onAuthSuccess }) {
   // ─── Resend verification from login screen ──────────────────────────────
   async function handleResendFromLogin() {
     if (!email) { setError('أدخل بريدك الإلكتروني أولاً'); return; }
-    setLoading(true);
-    try {
-      // Sign in temporarily to get user object — we need to be signed in to send verification
-      // Can't resend without the user object; prompt them to check spam or try signup
-      setInfo('يرجى محاولة إنشاء حساب جديد أو التواصل مع الدعم الفني إذا كان البريد مسجلاً بالفعل');
-    } finally {
-      setLoading(false);
-    }
+    // Firebase does not expose resend-verification without the User object.
+    // The correct path is to direct the user to signup where we can create a
+    // fresh verification request. If the email already exists, handleEmailSignup
+    // will surface auth/email-already-in-use — at that point we CANNOT resend
+    // without the user being signed in. Instead, instruct them clearly.
+    setError('');
+    setInfo(
+      'لإعادة إرسال رابط التحقق: اضغط على "إنشاء حساب جديد" أدناه، أدخل نفس البريد وكلمة المرور — سيُرسل رابط تحقق جديد تلقائياً.'
+    );
   }
 
   // ─── Password Reset ─────────────────────────────────────────────────────
@@ -328,21 +329,23 @@ export default function AuthPage({ onAuthSuccess }) {
     return (
       <div dir="rtl" data-auth-screen="verifyEmail">
         <h2>تحقق من بريدك الإلكتروني</h2>
-        <p>أدخل كود التحقق المرسل إلى بريدك</p>
         <ErrorBox />
         <InfoBox />
 
-        {/* 6-digit OTP display boxes (visual only — verification is via email link polling) */}
-        <div data-otp-boxes>
-          {[0,1,2,3,4,5].map(i => (
-            <div key={i} data-otp-box />
-          ))}
+        <div data-verify-card>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" strokeWidth="1.5" style={{ color: 'var(--nb-teal)', margin: '0 auto 12px', display: 'block' }}>
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <polyline points="2,4 12,13 22,4"/>
+          </svg>
+          <p data-verify-hint>
+            تم إرسال رابط التحقق إلى <strong>{email}</strong>
+          </p>
+          <p data-verify-sub>
+            افتح بريدك الإلكتروني وانقر على رابط التحقق. ستنتقل تلقائياً بعد التحقق.
+          </p>
+          <p data-verify-polling>جارٍ الانتظار...</p>
         </div>
-
-        <p data-verify-hint>
-          تم إرسال رابط التحقق إلى <strong>{email}</strong>. افتح بريدك وانقر على الرابط.
-        </p>
-        <p data-verify-polling>جارٍ التحقق تلقائياً...</p>
 
         <div data-resend-row>
           {resendDisabled ? (

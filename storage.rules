@@ -29,7 +29,7 @@ service firebase.storage {
     // members/{userId}/profile_photo
     // Owner read/write only, max 5 MB, images only
     match /members/{userId}/profile_photo {
-      allow read: if isOwner(userId);
+      allow read:  if isOwner(userId) || isAdmin();
       allow write: if isOwner(userId) && isImage() && maxSize(5);
     }
 
@@ -46,7 +46,7 @@ service firebase.storage {
     // Owner write (overwrite allowed for corrections), admin read, max 10 MB, images only
     match /receipts/{userId}/{fileName} {
       allow read: if isOwner(userId) || isAdmin();
-      allow write: if isOwner(userId) && isImage() && maxSize(10);
+      allow write: if isOwner(userId) && isImage() && maxSize(8);
     }
 
     // ─── Deny everything else ─────────────────────────────────────────────

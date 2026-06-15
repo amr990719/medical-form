@@ -299,3 +299,20 @@ html {
   animation: shimmer 1.4s infinite linear;
   display: inline-block;
 }
+
+[data-verify-card] {
+  background: var(--nb-teal-light);
+  border: 1px solid var(--nb-teal);
+  border-radius: 12px;
+  padding: 20px 16px;
+  text-align: center;
+  margin: 16px 0;
+}
+
+[data-verify-sub] {
+  font-size: 12px;
+  color: var(--nb-slate);
+  text-align: center;
+  margin: 6px 0 0;
+  line-height: 1.6;
+}
