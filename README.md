@@ -1,6 +1,8 @@
 # Medical Union Subscription Form
 ### اتحاد نقابات المهن الطبية — مشروع علاج الأعضاء وأسرهم
 
+> **This is a prototype.** It is intended for demonstration and development purposes only and is not production-ready.
+
 A React web application for managing medical union subscription forms for Egyptian medical syndicates. Members fill out a subscription form, upload a payment receipt, and track their application status through a dashboard.
 
 ---
